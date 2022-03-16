@@ -144,108 +144,118 @@ class _GameState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     double cardMargin = 100;
-    var cardWidth = MediaQuery.of(context).size.width - (cardMargin * 2);
+    var cardWidth = 200;
     var hasWinningLineConfigs =
         _winningConfigIndex >= 0 && _winningCordIndex >= 0;
     _GameBoardWinningMark? markConfigs =
         _winningLineMap[_winningConfigIndex]?[_winningCordIndex];
 
-    return Column(
-      children: [
-        Expanded(
-          child: Stack(
-            children: [
-              Card(
-                clipBehavior: Clip.antiAlias,
-                margin: EdgeInsets.only(
-                    left: cardMargin,
-                    right: cardMargin,
-                    top: cardMargin,
-                    bottom: cardMargin / 2),
-                elevation: 10,
-                child: Transform.scale(
-                  scale: 1.010,
-                  child: Column(
-                    children: _gameBoard
-                        .asMap()
-                        .entries
-                        .map((row) => Expanded(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: row.value
-                                    .asMap()
-                                    .entries
-                                    .map((col) => Expanded(
-                                          child: InkWell(
-                                            onTap: _gameBoard[row.key]
-                                                        [col.key] >=
-                                                    0
-                                                ? null
-                                                : () {
-                                                    setState(() {
-                                                      _gameBoard[row.key]
-                                                              [col.key] =
-                                                          firstPlayerTurn
-                                                              ? 1
-                                                              : 0;
-                                                      firstPlayerTurn =
-                                                          !firstPlayerTurn;
-                                                      isGameEnded =
-                                                          _evaluateIsGameEnded();
-                                                    });
-                                                  },
-                                            child: Container(
-                                                alignment: Alignment.center,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: Colors.black,
-                                                        width: 1)),
-                                                child: col.value < 0
-                                                    ? const SizedBox.shrink()
-                                                    : Text(
-                                                        "${col.value}",
-                                                        style: const TextStyle(
-                                                            fontSize: 30),
-                                                      )),
-                                          ),
-                                        ))
-                                    .toList(),
-                              ),
-                            ))
-                        .toList(),
-                  ),
-                ),
-              ),
-              Center(
-                child: Transform.rotate(
-                  angle: markConfigs?.angle ?? 0,
-                  child: Transform.translate(
-                    offset: markConfigs?.offset ?? const Offset(0, 0),
-                    child: AnimatedSize(
-                      duration: const Duration(milliseconds: 250),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.green,
-                        ),
-                        height: 10,
-                        width: (isGameEnded && hasWinningLineConfigs)
-                            ? cardWidth + (markConfigs?.widthAddition ?? 0)
-                            : 0,
+    return Center(
+      child: SizedBox(
+        width: 400,
+        height: 400,
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Card(
+                    clipBehavior: Clip.antiAlias,
+                    margin: EdgeInsets.only(
+                        left: cardMargin,
+                        right: cardMargin,
+                        top: cardMargin,
+                        bottom: cardMargin / 2),
+                    elevation: 10,
+                    child: Transform.scale(
+                      scale: 1.010,
+                      child: Column(
+                        children: _gameBoard
+                            .asMap()
+                            .entries
+                            .map((row) => Expanded(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: row.value
+                                        .asMap()
+                                        .entries
+                                        .map((col) => Expanded(
+                                              child: InkWell(
+                                                onTap: _gameBoard[row.key]
+                                                            [col.key] >=
+                                                        0
+                                                    ? null
+                                                    : () {
+                                                        setState(() {
+                                                          _gameBoard[row.key]
+                                                                  [col.key] =
+                                                              firstPlayerTurn
+                                                                  ? 1
+                                                                  : 0;
+                                                          firstPlayerTurn =
+                                                              !firstPlayerTurn;
+                                                          isGameEnded =
+                                                              _evaluateIsGameEnded();
+                                                        });
+                                                      },
+                                                child: Container(
+                                                    alignment: Alignment.center,
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color: Colors.black,
+                                                            width: 1)),
+                                                    child: col.value < 0
+                                                        ? const SizedBox
+                                                            .shrink()
+                                                        : Text(
+                                                            "${col.value}",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        30),
+                                                          )),
+                                              ),
+                                            ))
+                                        .toList(),
+                                  ),
+                                ))
+                            .toList(),
                       ),
                     ),
                   ),
-                ),
+                  Center(
+                    child: Transform.rotate(
+                      angle: markConfigs?.angle ?? 0,
+                      child: Transform.translate(
+                        offset: markConfigs?.offset ?? const Offset(0, 0),
+                        child: AnimatedSize(
+                          duration: const Duration(milliseconds: 250),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.green,
+                            ),
+                            height: 10,
+                            width: (isGameEnded && hasWinningLineConfigs)
+                                ? cardWidth + (markConfigs?.widthAddition ?? 0)
+                                : 0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (isGameEnded)
+                    Align(
+                        alignment: Alignment.topCenter,
+                        child: Text("Game Won! Won By Player $gameWonBy"))
+                ],
               ),
-              if (isGameEnded)
-                Align(
-                    alignment: Alignment.topCenter,
-                    child: Text("Game Won! Won By Player $gameWonBy"))
-            ],
-          ),
+            ),
+            ElevatedButton(onPressed: _reset, child: const Text('Reset'))
+          ],
         ),
-        ElevatedButton(onPressed: _reset, child: const Text('Reset'))
-      ],
+      ),
     );
   }
 }
